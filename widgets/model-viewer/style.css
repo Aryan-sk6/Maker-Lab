@@ -1,0 +1,59 @@
+#app { display: flex; flex-direction: column; gap: 8px; padding: 10px; }
+header { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+header h1 { margin: 0; font-size: 16px; font-weight: 600; }
+.actions { margin-left: auto; display: flex; gap: 6px; }
+
+.main { display: grid; grid-template-columns: 1fr 220px; gap: 8px; }
+#viewport {
+  position: relative;
+  height: 380px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+  touch-action: none;
+}
+#viewport canvas { display: block; width: 100%; height: 100%; }
+
+aside {
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--panel);
+  padding: 8px;
+  max-height: 380px;
+  overflow: auto;
+}
+aside h2 { margin: 0 0 6px; font-size: 13px; font-weight: 600; }
+#parts { list-style: none; margin: 0; padding: 0; }
+#parts button {
+  width: 100%;
+  display: flex;
+  gap: 8px;
+  align-items: flex-start;
+  text-align: left;
+  border: 1px solid transparent;
+  background: transparent;
+  padding: 4px 6px;
+}
+#parts button[aria-pressed="true"] { border-color: var(--accent); background: var(--bg); }
+#parts .swatch { flex: none; width: 12px; height: 12px; margin-top: 3px; border-radius: 3px; border: 1px solid var(--border); }
+#parts .name { font-weight: 500; }
+#parts .desc { display: block; font-size: 11px; color: var(--muted); }
+
+#joint { margin-top: 8px; padding-top: 8px; border-top: 1px solid var(--border); }
+#joint label { display: flex; justify-content: space-between; font-size: 12px; }
+#joint input { width: 100%; }
+
+.controls { display: flex; align-items: center; gap: 10px; }
+.controls input { flex: 1; max-width: 320px; }
+
+/* Fullscreen: give the 3D view the room. */
+:root[data-display="fullscreen"] #viewport,
+:root[data-display="fullscreen"] aside { height: calc(100vh - 170px); max-height: none; }
+
+@media (max-width: 560px) {
+  #app { padding: 8px; }
+  .main { grid-template-columns: 1fr; }
+  #viewport { height: 300px; }
+  aside { max-height: 200px; }
+  .actions { margin-left: 0; }
+}

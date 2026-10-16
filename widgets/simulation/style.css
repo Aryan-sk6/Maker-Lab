@@ -1,0 +1,73 @@
+:root {
+  --s1: #2563eb;
+  --s2: #c2410c;
+  --s3: #047857;
+}
+:root[data-theme="dark"] {
+  --s1: #7aa2ff;
+  --s2: #fb923c;
+  --s3: #34d399;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --s1: #7aa2ff;
+    --s2: #fb923c;
+    --s3: #34d399;
+  }
+}
+
+#app { display: flex; flex-direction: column; gap: 10px; padding: 10px; }
+header { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; }
+header h1 { margin: 0; font-size: 16px; font-weight: 600; }
+h2 { margin: 0 0 6px; font-size: 13px; font-weight: 600; }
+
+.main { display: grid; grid-template-columns: minmax(0, 1fr) 280px; gap: 10px; align-items: start; }
+.plotcol { display: flex; flex-direction: column; gap: 8px; min-width: 0; }
+
+.tabs { display: flex; gap: 4px; flex-wrap: wrap; }
+.tabs button { border-radius: 999px; padding: 3px 12px; font-size: 12px; }
+.tabs button[aria-selected="true"] { background: var(--accent); border-color: var(--accent); color: var(--accent-text); }
+
+.plotrow { display: flex; gap: 8px; align-items: stretch; }
+#plotwrap { flex: 1; min-width: 0; height: 340px; border: 1px solid var(--border); border-radius: var(--radius); }
+#plotwrap canvas { display: block; width: 100%; height: 100%; touch-action: pan-y; }
+#rig { width: 170px; height: 340px; border: 1px solid var(--border); border-radius: var(--radius); flex: none; }
+
+.transport { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.transport input[type="range"] { flex: 1; min-width: 120px; }
+.transport output { min-width: 5.5em; font-variant-numeric: tabular-nums; }
+select { font: inherit; padding: 3px 6px; background: var(--panel); color: var(--text); border: 1px solid var(--border); border-radius: 6px; }
+
+#params-panel { border: 1px solid var(--border); border-radius: var(--radius); background: var(--panel); padding: 10px; }
+.param { margin-bottom: 10px; }
+.param label { display: block; font-size: 12px; margin-bottom: 2px; }
+.param .ctl { display: grid; grid-template-columns: 1fr 86px; gap: 8px; align-items: center; }
+.param .ctl input[type="range"] { width: 100%; margin: 0; }
+.param .ctl .num { display: flex; align-items: center; gap: 4px; }
+.param input[type="number"] {
+  width: 100%;
+  min-width: 0;
+  font: inherit;
+  padding: 3px 4px;
+  background: var(--bg);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+}
+.param .unit { font-size: 11px; color: var(--muted); white-space: nowrap; }
+#reset { width: 100%; margin-top: 2px; }
+
+dl { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 6px; margin: 0; }
+dl > div { border: 1px solid var(--border); border-radius: 6px; padding: 6px 8px; background: var(--panel); }
+dt { font-size: 11px; color: var(--muted); }
+dd { margin: 0; font-size: 15px; font-weight: 600; font-variant-numeric: tabular-nums; }
+dd .basis { font-size: 10px; font-weight: 400; color: var(--muted); margin-left: 6px; }
+#assumptions { margin: 0; padding-left: 18px; font-size: 12px; color: var(--muted); }
+#assumptions li { margin-bottom: 2px; }
+
+@media (max-width: 720px) {
+  .main { grid-template-columns: 1fr; }
+  .plotrow { flex-direction: column; }
+  #plotwrap { height: 280px; }
+  #rig { width: 100%; height: 150px; }
+}
