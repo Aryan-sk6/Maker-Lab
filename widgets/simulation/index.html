@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Maker Lab simulation</title>
+    <link rel="stylesheet" href="../common/base.css" />
+    <link rel="stylesheet" href="./style.css" />
+  </head>
+  <body>
+    <div id="app">
+      <header>
+        <h1 id="title">Simulation</h1>
+        <span class="muted" id="solver-note"></span>
+      </header>
+
+      <div class="main">
+        <div class="plotcol">
+          <div class="tabs" id="views" role="tablist" aria-label="Plot view"></div>
+          <div class="plotrow">
+            <div id="plotwrap"><canvas id="plot" role="img" aria-label="Simulation plot"></canvas></div>
+            <canvas id="rig" hidden role="img" aria-label="Pendulum animation"></canvas>
+          </div>
+          <div class="transport" id="transport" hidden>
+            <button id="play" type="button" class="primary" aria-label="Play animation">Play</button>
+            <input id="time" type="range" min="0" max="1000" step="1" value="0" aria-label="Time" />
+            <output id="time-value" class="muted"></output>
+            <label class="muted" for="speed">speed</label>
+            <select id="speed" aria-label="Animation speed">
+              <option value="0.25">0.25×</option>
+              <option value="0.5">0.5×</option>
+              <option value="1" selected>1×</option>
+              <option value="2">2×</option>
+              <option value="4">4×</option>
+            </select>
+          </div>
+        </div>
+
+        <aside id="params-panel">
+          <h2>Parameters</h2>
+          <div id="params"></div>
+          <button id="reset" type="button">Reset to tool values</button>
+        </aside>
+      </div>
+
+      <section>
+        <h2>Key results <span class="muted" id="results-note"></span></h2>
+        <dl id="kv"></dl>
+      </section>
+
+      <section>
+        <h2>Assumptions</h2>
+        <ul id="assumptions"></ul>
+      </section>
+
+      <p class="notice">Educational model with simplifying assumptions.</p>
+      <p class="status" id="status" role="status"></p>
+    </div>
+    <script type="module" src="./main.ts"></script>
+  </body>
+</html>

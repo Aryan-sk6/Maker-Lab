@@ -1,0 +1,49 @@
+#app { display: flex; flex-direction: column; gap: 8px; padding: 10px; }
+
+.toolbar { display: flex; flex-wrap: wrap; gap: 6px 16px; align-items: center; }
+.group { display: flex; align-items: center; gap: 4px; }
+.group .label { font-size: 12px; color: var(--muted); margin-right: 2px; }
+.toolbar button { padding: 4px 10px; font-size: 12px; }
+.toolbar button[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); color: var(--accent-text); }
+.toolbar button:disabled { opacity: 0.4; }
+
+.main { display: grid; grid-template-columns: minmax(0, 1fr) 260px; gap: 10px; align-items: start; }
+
+#viewer-wrap { position: relative; height: 420px; border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; background: var(--bg); }
+#viewer { position: absolute; inset: 0; }
+.overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  text-align: center;
+  color: var(--muted);
+  background: color-mix(in srgb, var(--bg) 85%, transparent);
+  pointer-events: none;
+}
+.overlay[hidden] { display: none; }
+.overlay.error { color: #d14343; pointer-events: auto; }
+
+aside { border: 1px solid var(--border); border-radius: var(--radius); background: var(--panel); padding: 10px; min-width: 0; }
+aside h1 { margin: 0 0 8px; font-size: 15px; font-weight: 600; overflow-wrap: anywhere; }
+dl { margin: 0 0 8px; display: grid; gap: 6px; }
+dl > div { min-width: 0; }
+dt { font-size: 11px; color: var(--muted); }
+dd { margin: 0; overflow-wrap: anywhere; font-variant-numeric: tabular-nums; }
+dd.mono { font: 12px ui-monospace, SFMono-Regular, Menlo, monospace; }
+.source { margin: 0 0 6px; font-size: 13px; }
+.source a { color: var(--accent); }
+.small { font-size: 11px; margin: 0 0 6px; }
+
+@media (max-width: 640px) {
+  .main { grid-template-columns: 1fr; }
+  #viewer-wrap { height: 320px; }
+}
+
+/* Before a molecule is ready, or after an error, show only the message. */
+#app:not([data-toolbar="true"]) .toolbar { display: none; }
+#app:not([data-details="true"]) aside { display: none; }
+#app:not([data-details="true"]) .main { grid-template-columns: 1fr; }
+#app:not([data-details="true"]) #disclaimer { display: none; }

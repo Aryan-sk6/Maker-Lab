@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Maker Lab 3D viewer</title>
+    <link rel="stylesheet" href="../common/base.css" />
+    <link rel="stylesheet" href="./style.css" />
+  </head>
+  <body>
+    <div id="app">
+      <header>
+        <h1 id="title">3D model</h1>
+        <span class="muted">units: mm</span>
+        <div class="actions">
+          <button id="fit" type="button" title="Reset the camera">Fit view</button>
+          <button id="fullscreen" type="button" hidden>Fullscreen</button>
+          <button id="stl" type="button" class="primary" disabled>Download STL</button>
+        </div>
+      </header>
+
+      <div class="main">
+        <div id="viewport" aria-label="3D view. Drag to orbit, scroll to zoom, right-drag to pan."></div>
+        <aside>
+          <h2>Parts</h2>
+          <ul id="parts"></ul>
+          <div id="joint" hidden>
+            <label for="joint-angle"><span id="joint-label">Joint angle</span> <output id="joint-value">0°</output></label>
+            <input id="joint-angle" type="range" min="-180" max="180" step="1" value="0" />
+          </div>
+        </aside>
+      </div>
+
+      <div class="controls">
+        <label for="explode">Exploded view</label>
+        <input id="explode" type="range" min="0" max="1" step="0.01" value="0" />
+      </div>
+
+      <p class="notice" id="disclaimer">
+        Approximate model from a parametric description. Not an engineering drawing. Check dimensions before printing.
+      </p>
+      <p class="status" id="status" role="status">Waiting for the model…</p>
+    </div>
+    <script type="module" src="./main.ts"></script>
+  </body>
+</html>
