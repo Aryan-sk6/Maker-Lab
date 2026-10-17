@@ -8,6 +8,8 @@ An MCP server with interactive widgets for ChatGPT and Claude, built on the open
 | `run_simulation` | Physics/maths sandbox: pendulum, projectile, mass-spring-damper, RC/RLC, logistic growth, solved with RK4 | ✅ v0.2.0 |
 | `show_molecule` | 3Dmol.js viewer for PDB IDs, compound names and SMILES (RCSB, PubChem) | ✅ v0.3.0 |
 
+> **A hobby project.** Maker Lab is shared as is and maintained as time allows. It works in local testing, but it has not yet been tried inside real ChatGPT or Claude, so expect rough edges (menu names and host rules there change often). Issues and pull requests are welcome, with no promise of a quick reply.
+
 > **Educational use only.** Maker Lab produces approximate visualisations. It makes no claim of accuracy, safety, or engineering or medical suitability.
 
 ## Quick start
@@ -20,13 +22,6 @@ npm run dev
 ```
 
 Then open **http://localhost:8787/dev** to try all three tools in a local test host (no ChatGPT or Claude needed). To use Maker Lab inside ChatGPT or Claude it has to be reachable over public HTTPS; see [Expose it over HTTPS](#expose-it-over-https-tunnel) and [Connect it](#connect-it) below.
-
-## Demo
-
-<!-- Replace with 30-second recordings once available. -->
-- `docs/demo-3d-model.gif`: *placeholder: asking for a gear train, exploding it, exporting STL*
-- `docs/demo-simulation.gif`: *placeholder*
-- `docs/demo-molecule.gif`: *placeholder*
 
 ## Requirements
 
