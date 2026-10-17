@@ -15,7 +15,7 @@ An MCP server with interactive widgets for ChatGPT and Claude, built on the open
 ## Quick start
 
 ```bash
-git clone https://github.com/sk82santhosh-cpu/Maker-Lab.git
+git clone https://github.com/Aryan-sk6/Maker-Lab.git
 cd Maker-Lab
 npm install
 npm run dev
