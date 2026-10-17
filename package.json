@@ -10,7 +10,7 @@
     "build": "npm run build:widgets && tsc -p tsconfig.build.json",
     "start": "node dist/server/index.js",
     "dev": "npm run build:widgets && tsx watch server/index.ts",
-    "tunnel": "cloudflared tunnel --url http://localhost:8787",
+    "tunnel": "cloudflared tunnel --url http://localhost:8787 --http-host-header localhost:8787",
     "typecheck": "tsc --noEmit",
     "test": "vitest run"
   },

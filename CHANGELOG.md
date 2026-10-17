@@ -4,6 +4,13 @@ All notable changes to Maker Lab. Format based on [Keep a Changelog](https://kee
 
 ## [Unreleased]
 
+### Fixed
+- `npm run tunnel` now passes `--http-host-header localhost:8787`; before, tunnelled requests were rejected with 403 by the DNS-rebinding check.
+
+### Changed
+- README: added a Quick start (clone, install, run) and rewrote the tunnel section, including the `ALLOWED_HOSTS` alternative.
+- LICENSE copyright holder is now Aryan SK.
+
 ## [0.3.0] - 2026-10-17
 
 ### Added
