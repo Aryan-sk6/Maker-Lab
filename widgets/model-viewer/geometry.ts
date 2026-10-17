@@ -3,6 +3,7 @@
 import * as THREE from "three";
 import type { ShapeInput } from "../../shared/model3d.js";
 import { gearOutline } from "./gear.js";
+import { rackOutline } from "./rack.js";
 
 const SEGMENTS = 48;
 // Three.js primitives use a Y axis; this turns Y into Z (y → z, z → −y).
@@ -35,6 +36,24 @@ export function buildGeometry(shape: ShapeInput): THREE.BufferGeometry {
         0,
         -shape.thickness / 2,
       );
+    }
+
+    case "pulley": {
+      // Half cross-section (radius, height) spun around the axle: a groove for the belt between two flanges.
+      const r0 = (shape.bore ?? 0) / 2;
+      const R = shape.diameter / 2;
+      const F = R + Math.max(1.5, 0.08 * R);
+      const h = shape.width / 2;
+      const f = Math.min(shape.width * 0.15, 2);
+      const profile = [
+        [r0, -h], [F, -h], [F, -h + f], [R, -h + f + 0.5], [R, h - f - 0.5], [F, h - f], [F, h], [r0, h], [r0, -h],
+      ].map(([x, y]) => new THREE.Vector2(x, y));
+      return new THREE.LatheGeometry(profile, 64).applyMatrix4(Y_TO_Z);
+    }
+
+    case "rack": {
+      const outline = rackOutline(shape).map(([x, y]) => new THREE.Vector2(x, y));
+      return new THREE.ExtrudeGeometry(new THREE.Shape(outline), { depth: shape.thickness, bevelEnabled: false }).translate(0, 0, -shape.thickness / 2);
     }
 
     case "bracket": {

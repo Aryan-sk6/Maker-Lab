@@ -13,7 +13,11 @@ export function describeShape(s: ShapeInput): string {
     case "cone":
       return `cone ⌀${s.baseDiameter}${s.topDiameter ? `→⌀${s.topDiameter}` : ""}×${s.height} mm`;
     case "gear":
-      return `gear ${s.teeth}T m${s.module}, ⌀${round(s.module * (s.teeth + 2))} mm outside, ${s.thickness} mm thick${s.bore ? `, ⌀${s.bore} bore` : ""}`;
+      return `gear, ${s.teeth} teeth, module ${s.module}, ⌀${round(s.module * (s.teeth + 2))} mm across, ${s.thickness} mm thick${s.bore ? `, ⌀${s.bore} bore` : ""}`;
+    case "pulley":
+      return `pulley ⌀${s.diameter} mm, ${s.width} mm wide${s.bore ? `, ⌀${s.bore} bore` : ""}`;
+    case "rack":
+      return `rack ${s.length} mm long, module ${s.module}`;
     case "bracket":
       return `bracket ${s.length}×${s.height} mm, ${s.width} mm wide, ${s.thickness} mm thick`;
   }

@@ -1,5 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { MAX_PARTS, ModelInput, summarizeModel } from "./model3d.js";
+import { buildMechanism } from "./mechanism.js";
+import { describeMotion } from "./kinematics.js";
 import { DEMO_MODEL } from "../widgets/model-viewer/demo.js";
 
 const box = (name: string, extra: Record<string, unknown> = {}) => ({
@@ -19,10 +21,17 @@ describe("render_3d_model input validation", () => {
     expect(errors(DEMO_MODEL)).toEqual([]);
   });
 
-  it("fills in defaults for position, rotation, colour and joint axis", () => {
-    const model = ModelInput.parse({ parts: [box("a"), box("b", { parent: "a", joint: { type: "rotating" } })] });
-    expect(model.parts[0]).toMatchObject({ position: [0, 0, 0], rotation: [0, 0, 0], color: "#9aa4b2" });
+  it("fills in defaults for rotation, joint axis and shape sizes; leaves position for the layout", () => {
+    const model = ModelInput.parse({ parts: [box("a"), box("b", { parent: "a", joint: { type: "rotating" } }), { name: "g", shape: { type: "gear" } }] });
+    expect(model.parts[0]).toMatchObject({ rotation: [0, 0, 0] });
+    expect(model.parts[0]?.position).toBeUndefined();
     expect(model.parts[1]?.joint).toEqual({ type: "rotating", axis: "z", angle: 0 });
+    expect(model.parts[2]?.shape).toEqual({ type: "gear", teeth: 20, module: 2, thickness: 6 });
+    expect(model.links).toEqual([]);
+  });
+
+  it("accepts the shortest possible mechanism: two gear names and a link", () => {
+    expect(errors({ parts: [{ name: "a", shape: { type: "gear" } }, { name: "b", shape: { type: "gear" } }], links: [{ type: "mesh", a: "a", b: "b" }] })).toEqual([]);
   });
 
   it(`rejects more than ${MAX_PARTS} parts`, () => {
@@ -44,7 +53,7 @@ describe("render_3d_model input validation", () => {
 
   it("names the allowed shape types when the type is unknown", () => {
     const result = errors({ parts: [{ name: "a", shape: { type: "torus", diameter: 10 } }] });
-    expect(result[0]).toContain("box, cylinder, sphere, cone, gear, bracket");
+    expect(result[0]).toContain("box, cylinder, sphere, cone, gear, pulley, rack, bracket");
   });
 
   it("rejects bad colours with an example of a good one", () => {
@@ -66,18 +75,24 @@ describe("render_3d_model input validation", () => {
     expect(errors({ parts: [box("a", { parent: "b" }), box("b", { parent: "a" })] }).join()).toContain("loops back");
   });
 
-  it("rejects a joint without a parent", () => {
-    expect(errors({ parts: [box("a", { joint: { type: "fixed" } })] })[0]).toContain("no parent");
+  it("rejects a fixed joint without a parent, but lets a part turn on its own", () => {
+    expect(errors({ parts: [box("a", { joint: { type: "fixed" } })] })[0]).toContain("fixed joint but no parent");
+    expect(errors({ parts: [box("a", { joint: { type: "rotating" } })] })).toEqual([]);
+  });
+
+  it("names unknown link types and unknown parts", () => {
+    expect(errors({ parts: [box("a")], links: [{ type: "chain", a: "a", b: "a" }] })[0]).toContain("mesh, belt, rack, axle");
+    expect(errors({ parts: [box("a")], driver: { part: "motor" } })[0]).toContain(`driver "motor" is not a part`);
   });
 
   it("rejects gears whose outside diameter exceeds the limit", () => {
-    const gear = { name: "g", shape: { type: "gear", teeth: 200, module: 10, thickness: 5 } };
-    expect(errors({ parts: [gear] })[0]).toContain("reduce module or teeth");
+    const gear = { name: "g", shape: { type: "gear", teeth: 150, module: 10, thickness: 5 } };
+    expect(errors({ parts: [gear] })[0]).toContain("use fewer teeth or a smaller module");
   });
 
   it("rejects a gear bore larger than the root circle allows", () => {
     const gear = { name: "g", shape: { type: "gear", teeth: 10, module: 1, thickness: 5, bore: 9 } };
-    expect(errors({ parts: [gear] })[0]).toContain("bore of at most 6 mm");
+    expect(errors({ parts: [gear] })[0]).toContain("use at most 6 mm or leave bore out");
   });
 
   it("rejects non-integer tooth counts", () => {
@@ -90,10 +105,14 @@ describe("render_3d_model input validation", () => {
     expect(errors({ parts: [bracket] })[0]).toContain("must be smaller than both length");
   });
 
-  it("produces a text summary with the disclaimer", () => {
-    const text = summarizeModel(ModelInput.parse(DEMO_MODEL));
-    expect(text).toContain("7 parts, units mm");
-    expect(text).toContain("gear 20T m2");
+  it("produces a text summary that explains the motion in plain sentences", () => {
+    const m = buildMechanism(ModelInput.parse(DEMO_MODEL));
+    if ("issues" in m) throw new Error(m.issues[0]!.message);
+    const text = summarizeModel(m, describeMotion(m.kinematics!), m.notes);
+    expect(text).toContain("8 parts, units mm");
+    expect(text).toContain("gear, 12 teeth, module 2");
+    expect(text).toContain(`"motor gear" is the driver, turning at 60 rpm.`);
+    expect(text).toContain(`"rack" slides`);
     expect(text).toContain("Not an engineering drawing");
   });
 });

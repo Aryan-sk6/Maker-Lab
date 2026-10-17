@@ -42,8 +42,11 @@ describe("render_3d_model over MCP", () => {
   it("returns structured content plus a text summary", async () => {
     const result = await client.callTool({ name: "render_3d_model", arguments: DEMO_MODEL });
     expect(result.isError).toBeFalsy();
-    expect(result.structuredContent).toMatchObject({ units: "mm", parts: expect.any(Array) });
-    expect(JSON.stringify(result.content)).toContain("7 parts");
+    expect(result.structuredContent).toMatchObject({ units: "mm", parts: expect.any(Array), motion: { driver: { part: "motor gear", rpm: 60 } } });
+    const motion = (result.structuredContent as { motion: { turning: { part: string; turnsPerDriverTurn: number; direction: string }[] } }).motion;
+    expect(motion.turning).toContainEqual(expect.objectContaining({ part: "big gear", turnsPerDriverTurn: expect.closeTo(1 / 3, 12), direction: "opposite" }));
+    expect(JSON.stringify(result.content)).toContain("8 parts");
+    expect(JSON.stringify(result.content)).toContain("turns once for every 3 turns");
   });
 
   it("returns a readable error the model can act on", async () => {
@@ -53,7 +56,7 @@ describe("render_3d_model over MCP", () => {
     });
     expect(result.isError).toBe(true);
     const text = JSON.stringify(result.content);
-    expect(text).toContain("a gear needs at least 6 teeth");
+    expect(text).toContain("a gear needs at least 8 teeth");
     expect(text).toContain("must be at least 0.1 mm");
   });
 });

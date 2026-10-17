@@ -39,10 +39,27 @@ aside h2 { margin: 0 0 6px; font-size: 13px; font-weight: 600; }
 #parts .name { font-weight: 500; }
 #parts .desc { display: block; font-size: 11px; color: var(--muted); }
 
-#joint { margin-top: 8px; padding-top: 8px; border-top: 1px solid var(--border); }
+#details { margin-top: 8px; padding-top: 8px; border-top: 1px solid var(--border); }
+#details h3 { margin: 0 0 4px; font-size: 13px; }
+.small { font-size: 12px; margin: 0 0 6px; }
+.edit { display: flex; align-items: center; gap: 6px; font-size: 12px; margin-bottom: 6px; }
+.edit button { width: 28px; height: 28px; padding: 0; font-size: 16px; line-height: 1; }
+.edit output { min-width: 3ch; text-align: center; font-weight: 600; font-variant-numeric: tabular-nums; }
+#joint { margin-top: 6px; }
 #joint label { display: flex; justify-content: space-between; font-size: 12px; }
 #joint input { width: 100%; }
 
+#drive { border: 1px solid var(--border); border-radius: var(--radius); background: var(--panel); padding: 8px 10px; }
+.drive-row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.drive-row input[type="range"] { flex: 1; min-width: 140px; }
+.drive-row output { min-width: 7em; font-variant-numeric: tabular-nums; }
+#play { min-width: 5.5em; }
+select { font: inherit; padding: 3px 6px; background: var(--bg); color: var(--text); border: 1px solid var(--border); border-radius: 6px; }
+.speeds { list-style: none; margin: 8px 0 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 6px; }
+.speeds li { display: flex; gap: 8px; align-items: flex-start; padding: 6px 8px; border: 1px solid var(--border); border-radius: 6px; background: var(--bg); font-size: 12px; }
+.speeds .swatch { flex: none; width: 12px; height: 12px; margin-top: 2px; border-radius: 3px; }
+.speeds b { font-size: 13px; }
+.speeds .live { display: block; color: var(--muted); font-variant-numeric: tabular-nums; }
 .controls { display: flex; align-items: center; gap: 10px; }
 .controls input { flex: 1; max-width: 320px; }
 
