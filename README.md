@@ -10,6 +10,17 @@ An MCP server with interactive widgets for ChatGPT and Claude, built on the open
 
 > **Educational use only.** Maker Lab produces approximate visualisations. It makes no claim of accuracy, safety, or engineering or medical suitability.
 
+## Quick start
+
+```bash
+git clone https://github.com/sk82santhosh-cpu/Maker-Lab.git
+cd Maker-Lab
+npm install
+npm run dev
+```
+
+Then open **http://localhost:8787/dev** to try all three tools in a local test host (no ChatGPT or Claude needed). To use Maker Lab inside ChatGPT or Claude it has to be reachable over public HTTPS; see [Expose it over HTTPS](#expose-it-over-https-tunnel) and [Connect it](#connect-it) below.
+
 ## Demo
 
 <!-- Replace with 30-second recordings once available. -->
@@ -60,15 +71,21 @@ You can also serve `dist/widgets/` from any static server and open `model-viewer
 
 ### Expose it over HTTPS (tunnel)
 
-ChatGPT and Claude connect from their own servers, so `localhost` is not reachable for them. In a second terminal:
+ChatGPT and Claude connect from their own servers, so `localhost` is not reachable for them. With the server running (`npm run dev`), open a second terminal:
 
 ```bash
-cloudflared tunnel --url http://localhost:8787 --http-host-header localhost:8787
+npm run tunnel
 ```
 
-cloudflared prints a URL like `https://random-words.trycloudflare.com`. Your MCP endpoint is that URL plus `/mcp`.
+This runs [cloudflared](https://developers.cloudflare.com/cloudflare-one/networks/connectors/cloudflare-tunnel/do-more-with-tunnels/trycloudflare/) (install it first, e.g. `brew install cloudflared`) and prints a URL like `https://random-words.trycloudflare.com`. Your MCP endpoint is that URL plus `/mcp`. The URL changes every time you restart the tunnel.
 
-The `--http-host-header` flag makes the request look local to the server's DNS-rebinding check. Without it, the server answers 403. The alternative is to restart the server with `ALLOWED_HOSTS=random-words.trycloudflare.com` (the hostname changes every time a quick tunnel starts). `npm run tunnel` runs cloudflared without the flag, so use the command above or set `ALLOWED_HOSTS`.
+The script passes `--http-host-header localhost:8787` so that tunnelled requests look local to the server's DNS-rebinding check; without it the server answers 403. That check also rejects any request that carries an `Origin` header (browsers send one; server-to-server connectors normally do not). If a client still gets 403, stop the server and start it with your tunnel's hostname allowed instead, which accepts that host and rejects all others:
+
+```bash
+HOST=0.0.0.0 ALLOWED_HOSTS=random-words.trycloudflare.com npm run dev
+```
+
+(Use the hostname cloudflared printed, without `https://`.)
 
 ### Deploy
 
