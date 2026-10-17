@@ -1,0 +1,17 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "maker-lab",
+      "runtimeExecutable": "npx",
+      "runtimeArgs": ["tsx", "server/index.ts"],
+      "port": 8787
+    },
+    {
+      "name": "widgets-static",
+      "runtimeExecutable": "npx",
+      "runtimeArgs": ["vite", "preview", "--outDir", "dist/widgets", "--port", "5179", "--strictPort", "--host", "127.0.0.1"],
+      "port": 5179
+    }
+  ]
+}
