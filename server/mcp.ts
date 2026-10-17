@@ -5,7 +5,7 @@ import { registerRender3d } from "./tools/render3d.js";
 import { registerMolecule } from "./tools/molecule.js";
 import { registerSimulation } from "./tools/simulation.js";
 
-export const SERVER_INFO = { name: "maker-lab", version: "0.3.0" };
+export const SERVER_INFO = { name: "maker-lab", version: "0.4.0" };
 
 export function createMakerLabServer(): McpServer {
   const server = new McpServer(SERVER_INFO, {

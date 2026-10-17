@@ -24,12 +24,39 @@
         <aside>
           <h2>Parts</h2>
           <ul id="parts"></ul>
-          <div id="joint" hidden>
-            <label for="joint-angle"><span id="joint-label">Joint angle</span> <output id="joint-value">0°</output></label>
-            <input id="joint-angle" type="range" min="-180" max="180" step="1" value="0" />
+          <div id="details" hidden>
+            <h3 id="details-name"></h3>
+            <p id="details-motion" class="muted small"></p>
+            <div id="edit" class="edit" hidden>
+              <span id="edit-label">Teeth</span>
+              <button id="edit-minus" type="button" aria-label="Fewer">−</button>
+              <output id="edit-value"></output>
+              <button id="edit-plus" type="button" aria-label="More">+</button>
+            </div>
+            <div id="joint" hidden>
+              <label for="joint-angle"><span id="joint-label">Angle</span> <output id="joint-value">0°</output></label>
+              <input id="joint-angle" type="range" min="-180" max="180" step="1" value="0" />
+            </div>
           </div>
         </aside>
       </div>
+
+      <section id="drive" hidden aria-label="Turn the mechanism">
+        <div class="drive-row">
+          <button id="play" type="button" class="primary" aria-label="Play">▶ Play</button>
+          <label for="turn" id="turn-label">Turn the driver</label>
+          <input id="turn" type="range" min="0" max="4" step="0.005" value="0" />
+          <output id="turn-value" class="muted"></output>
+          <select id="speed" aria-label="Animation speed">
+            <option value="0.25">¼ speed</option>
+            <option value="0.5">½ speed</option>
+            <option value="1" selected>normal</option>
+            <option value="2">2× speed</option>
+          </select>
+        </div>
+        <ul id="speeds" class="speeds"></ul>
+        <p id="drive-notes" class="muted small"></p>
+      </section>
 
       <div class="controls">
         <label for="explode">Exploded view</label>

@@ -4,6 +4,21 @@ All notable changes to Maker Lab. Format based on [Keep a Changelog](https://kee
 
 ## [Unreleased]
 
+## [0.4.0] - 2026-10-17
+
+### Added
+- Working mechanisms in `render_3d_model`: new `pulley` and `rack` parts, and `links` (`mesh`, `axle`, `belt`, `rack`) with an optional `driver`.
+- Automatic layout (`shared/mechanism.ts`): linked parts without a position are placed at exactly the right distance in a free direction; linked gears and pulleys are made free to turn; colours and shape sizes default sensibly. A two-gear mechanism needs only two names and one link.
+- Motion solver (`shared/kinematics.ts`): speed ratio, direction and tooth timing for every part, rack travel, belt length, and clear errors for jammed loops, different tooth sizes, wrong distances and wrong link types (with the fix).
+- Plain-language motion in the tool result ("small turns 4 times for every turn of big, the other way") and structured `motion` data.
+- Widget: Play / Turn slider, speed panel with live turn counts, white marks on wheels and moving marks on belts, belt drawing, and − / + buttons to change a gear's teeth or a pulley's size, after which the mechanism re-lays itself out.
+- Tests that turn mechanisms through a full revolution and check geometrically that teeth never pass through each other.
+
+### Changed
+- Gears: 8–150 teeth (was 6–200), module 0.5–20 mm, with defaults (20 teeth, module 2, 6 mm). Positions and colours are optional. Rotating joints no longer need a parent.
+- Widget resource is now `ui://maker-lab/model-viewer-v2.html` (hosts cache by URI).
+- Tool description rewritten for vague, child-level requests, with recipes.
+
 ### Fixed
 - `npm run tunnel` now passes `--http-host-header localhost:8787`; before, tunnelled requests were rejected with 403 by the DNS-rebinding check.
 

@@ -1,16 +1,26 @@
-// Sample model shown when the widget is opened on its own (outside an MCP host), for local development.
+// Sample mechanism shown when the widget is opened on its own (outside an MCP host), and used as the /dev example.
+// Note how little it says: no positions, no joints, no colours. The layout works all of that out.
 
-import type { ModelInput } from "../../shared/model3d.js";
-
-export const DEMO_MODEL: ModelInput = {
-  title: "Demo: two-gear reduction on a bracket",
+export const DEMO_MODEL = {
+  title: "Demo: gear train, belt and rack",
   parts: [
-    { name: "base plate", shape: { type: "box", width: 90, depth: 40, height: 4 }, position: [20, 0, -2], rotation: [0, 0, 0], color: "#94a3b8" },
-    { name: "upright", shape: { type: "bracket", length: 30, height: 60, width: 40, thickness: 4 }, position: [-25, 0, 2], rotation: [0, 0, 0], color: "#64748b", parent: "base plate", joint: { type: "fixed", axis: "z", angle: 0 } },
-    { name: "drive shaft", shape: { type: "cylinder", diameter: 6, height: 30 }, position: [2, 0, 50], rotation: [0, 90, 0], color: "#cbd5e1", parent: "upright", joint: { type: "rotating", axis: "z", angle: 0 } },
-    { name: "drive gear", shape: { type: "gear", teeth: 20, module: 2, thickness: 6, bore: 6 }, position: [0, 0, -12], rotation: [0, 0, 0], color: "#3b82f6", parent: "drive shaft", joint: { type: "fixed", axis: "z", angle: 0 } },
-    { name: "output shaft", shape: { type: "cylinder", diameter: 6, height: 30 }, position: [2, 0, 18], rotation: [0, 90, 0], color: "#cbd5e1", parent: "upright", joint: { type: "rotating", axis: "z", angle: 0 } },
-    { name: "output gear", shape: { type: "gear", teeth: 12, module: 2, thickness: 6, bore: 6 }, position: [0, 0, -12], rotation: [0, 0, 0], color: "#f59e0b", parent: "output shaft", joint: { type: "fixed", axis: "z", angle: 0 } },
-    { name: "knob", shape: { type: "cone", baseDiameter: 16, topDiameter: 10, height: 8 }, position: [0, 0, 19], rotation: [0, 0, 0], color: "#ef4444", parent: "drive shaft", joint: { type: "fixed", axis: "z", angle: 0 } },
+    { name: "motor gear", shape: { type: "gear", teeth: 12 } },
+    { name: "big gear", shape: { type: "gear", teeth: 36 } },
+    { name: "small gear", shape: { type: "gear", teeth: 12 } },
+    { name: "output gear", shape: { type: "gear", teeth: 30 } },
+    { name: "small pulley", shape: { type: "pulley", diameter: 30 } },
+    { name: "big pulley", shape: { type: "pulley", diameter: 60 } },
+    { name: "pinion", shape: { type: "gear", teeth: 16 } },
+    { name: "rack", shape: { type: "rack", length: 200 } },
   ],
+  links: [
+    { type: "mesh", a: "motor gear", b: "big gear" },
+    { type: "axle", a: "big gear", b: "small gear" },
+    { type: "mesh", a: "small gear", b: "output gear" },
+    { type: "axle", a: "output gear", b: "small pulley" },
+    { type: "belt", a: "small pulley", b: "big pulley" },
+    { type: "axle", a: "big pulley", b: "pinion" },
+    { type: "rack", pinion: "pinion", rack: "rack" },
+  ],
+  driver: { part: "motor gear", rpm: 60 },
 };

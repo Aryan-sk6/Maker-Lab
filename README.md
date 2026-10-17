@@ -4,7 +4,7 @@ An MCP server with interactive widgets for ChatGPT and Claude, built on the open
 
 | Tool | What it does | Status |
 |---|---|---|
-| `render_3d_model` | Interactive 3D preview of a parametric assembly (boxes, cylinders, gears, brackets…) with exploded view and STL export | ✅ v0.1.0 |
+| `render_3d_model` | 3D models and working mechanisms (gears, gear trains, belts and pulleys, rack and pinion) that you can turn, with speeds explained, editable tooth counts, exploded view and STL export | ✅ v0.4.0 |
 | `run_simulation` | Physics/maths sandbox: pendulum, projectile, mass-spring-damper, RC/RLC, logistic growth, solved with RK4 | ✅ v0.2.0 |
 | `show_molecule` | 3Dmol.js viewer for PDB IDs, compound names and SMILES (RCSB, PubChem) | ✅ v0.3.0 |
 
@@ -126,19 +126,57 @@ Claude reaches connectors from Anthropic's cloud, so the URL must be public (a t
 
 ### `render_3d_model`
 
-Builds an interactive 3D preview from a list of parts.
+Builds 3D models, and mechanisms that really work: turn the driver and every gear, pulley and rack moves at the right speed. It is designed so that a vague request ("make a big gear turn a little one") is enough. The model only has to name the parts and say how they connect; Maker Lab does the geometry.
 
-- **Shapes:** `box` (width/depth/height), `cylinder` (diameter/height), `sphere` (diameter), `cone` (base and optional top diameter, height), `gear` (involute spur gear: teeth 6–200, module, thickness, optional bore), `bracket` (L-shape: length, height, width, wall thickness).
-- **Per part:** `name`, `position` [x, y, z] mm, `rotation` [rx, ry, rz] degrees, `color` (#rrggbb), optional `parent` and `joint` (`fixed` or `rotating`, axis x/y/z).
-- **Limits:** 1–50 parts, every dimension 0.1–1000 mm. Invalid input is rejected with a message per field saying how to fix it.
-- **Frame:** Z-up, mm. Cylinders, cones and gears have their axis on Z and are centred on their origin. Brackets have their origin at the outside corner.
-- **Widget:** orbit (drag), zoom (scroll), pan (right-drag); exploded-view slider; part list (click to highlight; clicking in the 3D view works too); angle slider for rotating joints; **Download STL** (binary, mm, assembled pose).
+**What you can build**
 
-Example prompts:
+| Part | Shape fields (defaults) |
+|---|---|
+| `gear` | `teeth` (20), `module` = tooth size (2 mm), `thickness` (6), optional `bore` |
+| `pulley` | `diameter` (40), `width` (10), optional `bore` |
+| `rack` (a toothed bar that slides) | `length` (120), `module` (2), `height` (12), `thickness` (6) |
+| `box`, `cylinder`, `sphere`, `cone`, `bracket` | sizes in mm (no defaults) |
 
-- "Show me a 20-tooth and a 12-tooth spur gear, module 2, meshing on shafts mounted to an L-bracket."
+| Link | Meaning |
+|---|---|
+| `{"type":"mesh","a":…,"b":…}` | two gears' teeth interlock; they turn opposite ways |
+| `{"type":"axle","a":…,"b":…}` | b is fixed on a's axle; they turn together (for gear trains) |
+| `{"type":"belt","a":…,"b":…}` | a belt joins two pulleys; same direction (or `"crossed": true` for opposite) |
+| `{"type":"rack","pinion":…,"rack":…}` | a gear turns, the rack slides |
+
+Optional `"driver": {"part": …, "rpm": 30}` chooses which part you turn; otherwise the first link's first part drives.
+
+The shortest valid mechanism:
+
+```json
+{ "parts": [ { "name": "big", "shape": { "type": "gear", "teeth": 40 } },
+             { "name": "small", "shape": { "type": "gear", "teeth": 10 } } ],
+  "links": [ { "type": "mesh", "a": "big", "b": "small" } ] }
+```
+
+**What Maker Lab works out for you**
+
+- **Placement:** linked parts without a `position` are placed at exactly the right distance (for gears, module × (teeth₁ + teeth₂) / 2), in the same plane, in a direction that does not crash into parts already placed.
+- **Joints and colours:** linked gears and pulleys are made free to turn; parts get distinct colours.
+- **Motion:** the speed and direction of every part, from tooth counts and pulley sizes, with the teeth timed so they interlock. Gear loops that would jam, gears of different tooth sizes, gears placed by hand at the wrong distance, and mismatched link types are reported with the exact fix.
+- **Explanation:** the result includes one plain sentence per moving part, e.g. *"small" turns 4 times for every turn of "big", the other way (120 rpm).* The model uses these instead of doing the maths itself.
+
+**Widget**
+
+- **Turn it:** ▶ Play, or drag the "Turn" slider. A white mark on each wheel (and orange marks on belts) makes speeds visible.
+- **Speeds panel:** for every moving part, "3× slower, other way, 20 rpm" and how many turns it has made so far; racks show how far they have moved, and warn if they run off the end.
+- **Experiment:** click a gear and press − / + to change its teeth (or a pulley's diameter). Parts that were placed automatically move so everything still meshes, and all speeds update. This is the "what happens if…" part for students.
+- Also: orbit/zoom/pan, exploded view, click-to-select, and **Download STL** (binary, mm; belts are not included).
+
+Static models (no links) work as before: give each part a `position` [x, y, z] in mm and a `rotation` in degrees, Z up; `parent` attaches one part to another.
+
+Example prompts (they work even phrased loosely):
+
+- "Make a big gear turn a small gear."
+- "Show me how a bike's chain makes the back wheel spin faster than the pedals." (pulleys and a belt)
+- "Build a gear train that slows a motor down 9 times." (gear, axle, gear)
+- "How does turning a steering wheel move a rack?" (rack and pinion)
 - "Model a 60 × 40 × 25 mm project box with four 3 mm corner posts, then explode it."
-- "Make a simple desk phone stand from two brackets and a box, then let me download the STL."
 
 ### `run_simulation`
 
@@ -192,12 +230,12 @@ Example prompts:
 
 ## Known limitations
 
-- **Approximate geometry.** Gears have no undercut, root fillet or backlash; there are no fillets, chamfers, holes (except gear bores) or threads. Parts can overlap; the STL is the union of separate shells, not a single solid. Check it in your slicer.
+- **Approximate geometry.** Gears and racks have no undercut, root fillet or backlash; there are no fillets, chamfers, holes (except gear bores) or threads. Parts can overlap; the STL is the union of separate shells, not a single solid. Check it in your slicer.
 - **Simulations are simplified.** Each system lists its assumptions: point masses, ideal components, viscous (linear) damping and drag, uniform gravity, closed deterministic populations. Real air drag is closer to v² than to the linear drag used here. Results are for learning, not for design or safety decisions.
 - **Molecules need the internet twice.** The server must reach RCSB and PubChem to resolve a lookup, and the host must let the widget download from the two data hosts; if a host blocks that, the widget shows a message with the source link. Public services can be slow or busy; the server reports that rather than failing silently.
 - **Molecule detail is limited.** Only the first model of multi-model (NMR) entries is shown, waters are hidden, there are no surfaces or measurements, and entries above 120 000 atoms are refused. PubChem name matching is PubChem's, not ours: a name it does not know is reported as not found.
 - **Slider changes stay in the widget.** After you drag a slider the model is not told the new values; ask it to run the tool again if you want it to discuss the new case with fresh numbers.
-- **Joints are visual only.** Turning one gear does not turn the gear it meshes with. There is no collision detection.
+- **Mechanisms are ideal and flat.** Spur gears with parallel axles only (no bevel, worm or planetary gears, no gears riding on other turning parts), belts without slip or stretch, no friction, backlash, forces or torque. Gears with fewer than 12 teeth are drawn approximately (real ones need specially shaped teeth). Unlinked parts are not checked for collisions; overlaps between round parts are only reported as notes.
 - **Downloads depend on the host.** STL export uses the MCP Apps `ui/download-file` request when the host supports it. Otherwise it tries a normal browser download, which some sandboxes block.
 - **Preview SDKs.** MCP Apps and the ChatGPT Apps SDK are still changing; menu paths and metadata keys may move.
 - **Not checked in a real host.** So far this has been tested with the local `/dev` host, unit tests and an HTTP client, not yet inside ChatGPT or Claude.

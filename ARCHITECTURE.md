@@ -68,6 +68,31 @@ Each tool file registers two things using helpers from `@modelcontextprotocol/ex
 - **Exploded view.** Each child slides along its joint axis (in the parent's frame), away from the parent; top-level parts move away from their common centre. The distance is the slider value × 35% of the model's largest dimension.
 - **STL.** `STLExporter` (shipped with Three.js) writes a binary STL of the assembled pose (explode reset to 0, current joint angles) in mm.
 
+## 5a. Mechanisms: layout and motion (tool 1)
+
+The aim is that a model, or a child talking to one, can describe a mechanism without any geometry. Two shared, zod-free files do the work, and both the server and the widget run them:
+
+**`shared/mechanism.ts`: from a loose description to an exact layout.** In order:
+1. **Axles.** `axle` links make part b a child of part a, offset along a's axle and turned so its own Z lines up with it. They now turn together.
+2. **Free to turn.** Every gear or pulley in a `mesh`/`belt`/`rack` link gets a rotating joint about its own Z, unless the input gave it one. For a part on an axle, its carrier gets the joint instead.
+3. **Placement.** Repeatedly, for each link with one end placed and the other not, place the other end next to it: gears at exactly module × (z₁ + z₂) / 2, pulleys at a comfortable belt distance, a rack under its pinion with its pitch line touching the pinion's pitch circle. The direction is the link's `angle` if given, otherwise the first of 0°, 90°, 180°, 270°, 45°, … that does not overlap a round part already placed. If no link can make progress, the first unplaced group is started at the origin. Placing a part that sits on an axle moves its carrier, using the fixed transform between them.
+4. **Defaults.** Remaining parts go to the origin; parts without a colour get one from a palette; missing shape sizes come from `shared/defaults.ts`, the same table the zod schema uses.
+5. **Motion** via `solveKinematics`, plus warnings for round parts that overlap without being linked.
+
+**`shared/kinematics.ts`: who turns how fast.**
+- A **rotor** is a part with a rotating joint; everything rigidly attached to it turns with it. The **driver** is the rotor the student turns, at angle φ. Every other rotor turns at θ = ratio·φ + offset.
+- Each link becomes an edge θ_b = k·θ_a + c between two rotors:
+  - **Mesh:** k = −(z_a / z_b) (times ±1 if an axle points the other way). The offset c makes a tooth of A face a gap of B along the line of centres. With ψ the direction from A's centre to B's, and χ the angle of each gear's tooth 0 at rest, all measured about A's axle: c = −(z_a/z_b)·χ_a + ψ·(1 + z_a/z_b) + π·(1 − 1/z_b) − χ_b. Check: if A's tooth points at B (χ_a = ψ = 0, χ_b = 0), B must turn by π − π/z_b, which puts half a tooth pitch of B opposite A's tooth.
+  - **Belt:** k = d_a / d_b, the same direction (negated for a crossed belt). No timing needed.
+  - **Rack:** not a rotor. Its slide is d = d₀ + r·θ (r = pinion pitch radius), where d₀ shifts the rack so a gap sits under the pinion tooth nearest the contact point.
+- A breadth-first walk from the driver gives every rotor its ratio and offset. Reaching a rotor twice with different ratios means a jammed loop, which is an error. Rotors the walk never reaches are not driven, which is also an error.
+- Checks along the way produce the error messages: same module, parallel axles, correct centre distance (±0.5% or 0.05 mm), same plane, parts actually able to turn, rack teeth facing the pinion.
+- `describeMotion` turns the ratios into the plain sentences shown to the model and the student.
+
+**Widget.** `main.ts` rebuilds the mechanism from the tool result with `buildMechanism`, then on every slider move or animation frame calls `poseAt(kinematics, φ)` and sets each rotor's spin angle, each rack's slide and the belt marks. The − / + buttons change one part, clear the positions the layout chose (`autoPlaced`), and run `buildMechanism` again, so the mechanism rearranges itself; if it no longer fits, the message says why and the old one stays.
+
+**How we know the teeth really mesh.** `shared/kinematics.test.ts` turns mechanisms through a full revolution and measures, geometrically, how far any point of one outline goes inside the other. Correct layouts stay under 0.02 mm (a few-micrometre graze from perfectly tight, backlash-free teeth). The same test with the timing shifted by half a tooth shows over 0.5 mm, which proves it can catch mistakes. It covers awkward cases: arbitrary angles, pre-rotated and upright gears, a flipped gear placed by hand, idlers, compound trains and a rack.
+
 ## 6. Simulation (tool 2)
 
 **The rule: the model never supplies a number.** It picks a system and parameters; the solver produces everything else.
@@ -98,6 +123,7 @@ The only tool that talks to other services, so it has the most moving parts.
 
 `npm test` runs Vitest:
 
+- `shared/kinematics.test.ts`: mechanisms: placement, ratios and directions, tooth interlock over a full turn (see 5a), belts (ratio, direction, length), rack travel, compound trains, and every error message for broken mechanisms.
 - `shared/model3d.test.ts`: every validation rule and its message.
 - `widgets/model-viewer/geometry.test.ts`: gear radii and winding, primitive sizes and orientation, STL byte layout.
 - `shared/systems.test.ts`: the solver against closed-form solutions (pendulum small-angle, damped and exact large-amplitude period; projectile with and without drag; mass-spring-damper in all regimes; RC charging; RLC step response; logistic growth), RK4's fourth-order convergence, and the step/duration limits.
