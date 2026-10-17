@@ -4,6 +4,9 @@ All notable changes to Maker Lab. Format based on [Keep a Changelog](https://kee
 
 ## [Unreleased]
 
+### Changed
+- README: removed the demo GIF placeholders and added a note that this is a hobby project, shared as is.
+
 ## [0.4.0] - 2026-10-17
 
 ### Added
