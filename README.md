@@ -220,7 +220,7 @@ Example prompts:
 
 - "Show me caffeine in 3D and explain which atoms are nitrogen."
 - "Show haemoglobin (4HHB) as a cartoon coloured by chain. How many chains does it have?"
-- "What does the amino acid L-alanine look like? Use this SMILES: C[C@@H](C(=O)O)N"
+- "What does the amino acid L-alanine look like? Use this SMILES: `C[C@@H](C(=O)O)N`"
 - "Show me crambin, PDB 1CRN, and tell me how well resolved it is."
 
 ## Known limitations
